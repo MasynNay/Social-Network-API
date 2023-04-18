@@ -14,11 +14,9 @@ const {
 router.route('/').get(getUsers).post(createUser);
 
 // GET, PUT, & DELETE at api/users/:id
-router.route('/:id').get(getUserById).put(updateUser).delete(deleteUser);
+router.route('/:userId').get(getUserById).put(updateUser).delete(deleteUser);
 
-// New Friend Route
-router.route('/:userId/friends/:friendId').post(addFriend);
+// New Friend and Delete Friend Route
+router.route('/:userId/friends/:friendId').post(addFriend).delete(deleteFriend);
 
-// Delete Friend Route
-router.route('/:userId/friends/:friendId').delete(deleteFriend);
 module.exports = router;

@@ -1,4 +1,4 @@
-const { Thought, Reaction } = require("../models");
+const { Thought, Reaction, User } = require("../models");
 
 module.exports = {
   // Get All Thoughts
@@ -16,9 +16,7 @@ module.exports = {
   // Get A Thought By ID
   async getThoughtById(req, res) {
     try {
-      const thought = await Thought.findById(req.params.thoughtId).select(
-        "-__v"
-      );
+      const thought = await Thought.findOne({ _id: req.params.thoughtId }).select("-__v");
       if (!thought) {
         return res.status(404).json({
           error: "Could not find a thought with that ID. Please try again",
@@ -35,13 +33,19 @@ module.exports = {
   async createThought(req, res) {
     try {
       const thought = await Thought.create(req.body);
+      const userId = req.body.userId;
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      user.thoughts.push(thought._id);
+      await user.save();
       res.json(thought);
     } catch (err) {
-      console.error(err);
-      res.status(500).json(err);
+      console.log(err);
+      return res.status(500).json(err);
     }
   },
-
   // Delete Thought
   async deleteThought(req, res) {
     try {
@@ -52,11 +56,8 @@ module.exports = {
           error: "Could not find a thought with that ID. Please try again",
         });
       }
-
-      await Reaction.deleteMany({ _id: { $in: thought.reactions } });
-      res.json({ message: "Thought and Reactions have been deleted" });
+      res.json({ message: 'Thought deleted!' });
     } catch (err) {
-      console.error(err);
       res.status(500).json(err);
     }
   },
@@ -81,7 +82,7 @@ module.exports = {
     }
   },
 
-  // Create a new reaction for a thought
+  // Create Reaction
   async createReaction(req, res) {
     try {
       const { thoughtId } = req.params;
@@ -100,7 +101,7 @@ module.exports = {
     }
   },
 
-  // Delete A Reaction By ID From A Thought ID
+  // Delete Reaction
   async deleteReaction(req, res) {
     try {
       const { thoughtId, reactionId } = req.params;
@@ -114,7 +115,9 @@ module.exports = {
         (reaction) => reaction.id === reactionId
       );
       if (reactionIndex === -1) {
-        return res.status(404).json({ error: "Could not find this reaction. Please try again" });
+        return res
+          .status(404)
+          .json({ error: "Could not find this reaction. Please try again" });
       }
       thought.reactions.splice(reactionIndex, 1);
       await thought.save();
