@@ -8,7 +8,7 @@ module.exports = {
       res.json(thoughts);
     } catch (err) {
       res.status(500).json({
-        error: "Could not find any thoughts. Please try again",
+        error: "Could Not Find Any Thoughts. Please Try Again",
       });
     }
   },
@@ -16,10 +16,12 @@ module.exports = {
   // Get A Thought By ID
   async getThoughtById(req, res) {
     try {
-      const thought = await Thought.findOne({ _id: req.params.thoughtId }).select("-__v");
+      const thought = await Thought.findOne({
+        _id: req.params.thoughtId,
+      }).select("-__v");
       if (!thought) {
         return res.status(404).json({
-          error: "Could not find a thought with that ID. Please try again",
+          error: "Could Not Find A Thought With That ID. Please Try Again",
         });
       }
       res.json(thought);
@@ -36,7 +38,9 @@ module.exports = {
       const userId = req.body.userId;
       const user = await User.findById(userId);
       if (!user) {
-        return res.status(404).json({ error: "User not found" });
+        return res.status(404).json({
+          error: "Could Not Find This User. Please Try Again",
+        });
       }
       user.thoughts.push(thought._id);
       await user.save();
@@ -53,10 +57,10 @@ module.exports = {
 
       if (!thought) {
         return res.status(404).json({
-          error: "Could not find a thought with that ID. Please try again",
+          error: "Could Not Find A Thought With That ID. Please Try Again",
         });
       }
-      res.json({ message: 'Thought deleted!' });
+      res.json({ message: "Successfully Deleted Thought" });
     } catch (err) {
       res.status(500).json(err);
     }
@@ -72,7 +76,7 @@ module.exports = {
       );
       if (!thought) {
         return res.status(404).json({
-          error: "Could not find a thought with that ID. Please try again",
+          error: "Could Not Find A Thought With That ID. Please Try Again",
         });
       }
       res.json(thought);
@@ -85,16 +89,16 @@ module.exports = {
   // Create Reaction
   async createReaction(req, res) {
     try {
-      const { thoughtId } = req.params;
-      const { reactionBody } = req.body;
-      const thought = await Thought.findById(thoughtId);
+      const thought = await Thought.findOneAndUpdate(
+        { _id: req.params.thoughtId },
+        { $addToSet: { reactions: req.body } },
+        { new: true }
+      );
       if (!thought) {
         return res.status(404).json({
-          error: "Could not find a thought with that ID. Please try again",
+          error: "Could Not Find A Thought With That ID. Please Try Again",
         });
       }
-      thought.reactions.push({ reactionBody });
-      await thought.save();
       res.json(thought);
     } catch (err) {
       res.status(500).json(err);
@@ -104,26 +108,21 @@ module.exports = {
   // Delete Reaction
   async deleteReaction(req, res) {
     try {
-      const { thoughtId, reactionId } = req.params;
-      const thought = await Thought.findById(thoughtId);
-      if (!thought) {
-        return res.status(404).json({
-          error: "Could not find a thought with that ID. Please try again",
-        });
-      }
-      const reactionIndex = thought.reactions.findIndex(
-        (reaction) => reaction.id === reactionId
+      const thought = await Thought.findOneAndUpdate(
+        { _id: req.params.thoughtId },
+        { $pull: { reactions: { reactionId: req.params.reactionId } } },
+        { new: true }
       );
-      if (reactionIndex === -1) {
+      if (!thought) {
         return res
           .status(404)
-          .json({ error: "Could not find this reaction. Please try again" });
+          .json({
+            message: "Could Not Find A Reaction With That ID. Please Try Again",
+          });
       }
-      thought.reactions.splice(reactionIndex, 1);
-      await thought.save();
       res.json(thought);
     } catch (err) {
-      res.status(500).json;
+      res.status(500).json(err);
     }
   },
 };

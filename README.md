@@ -45,8 +45,6 @@ Complete the rest on Insomnia or Postman
 
 ## Application Demonstration
 
-![](./public/images/demo1.png)
-
-
+![](./assets/demo.png)
 
 ## Live Application

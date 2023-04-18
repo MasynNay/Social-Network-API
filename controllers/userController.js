@@ -9,7 +9,7 @@ module.exports = {
       res.json({ users });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: "Server error" });
+      return res.status(500).json(err);
     }
   },
 
@@ -20,7 +20,11 @@ module.exports = {
         .select("-__v")
         .lean();
       if (!user) {
-        return res.status(404).json({ message: "No user with that ID" });
+        return res
+          .status(404)
+          .json({
+            message: "Could Not Find A User With That ID. Please Try Again",
+          });
       }
       res.json({
         user,
@@ -38,27 +42,31 @@ module.exports = {
       res.status(201).json({ user });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: "Server error" });
+      return res.status(500).json(err);
     }
   },
 
   // Update a user by ID
   async updateUser(req, res) {
     try {
-      const newUsername =req.body.username;
+      const newUsername = req.body.username;
       const newEmail = req.body.email;
       const user = await User.findOneAndUpdate(
         { _id: req.params.userId },
-        {username: newUsername, email: newEmail},
-        {new: true}
+        { username: newUsername, email: newEmail },
+        { new: true }
       );
       if (!user) {
-        return res.status(404).json({ error: "User not found" });
+        return res
+          .status(404)
+          .json({
+            error: "Could Not Find A User With That ID. Please Try Again",
+          });
       }
       res.json({ user });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: "Server error" });
+      return res.status(500).json(err);
     }
   },
 
@@ -67,13 +75,17 @@ module.exports = {
     try {
       const user = await User.findByIdAndDelete(req.params.userId);
       if (!user) {
-        return res.status(404).json({ error: "User not found" });
+        return res
+          .status(404)
+          .json({ error: "Could Not Find This User. Please Try Again" });
       }
       const thoughts = await Thought.deleteMany({ user: req.params.userId });
-      res.json({ message: "User and their thoughts deleted successfully" });
+      res.json({
+        message: "Successfully Deleted This User And Their Thoughts",
+      });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: "Server error" });
+      return res.status(500).json(err);
     }
   },
 
@@ -86,12 +98,12 @@ module.exports = {
         { new: true }
       );
       if (!user) {
-        res.response(404).json({ error: "User not found" });
+        res
+          .response(404)
+          .json({ error: "Could Not Find This User. Please Try Again" });
         return;
       }
-      res
-        .status(200)
-        .json({ user, message: "Congratulations, you have added a friend!" });
+      res.status(200).json({ user, message: "Successfully Added A Friend" });
     } catch (error) {
       res.status(500).json(error);
     }
@@ -106,10 +118,12 @@ module.exports = {
         { new: true }
       );
       if (!user) {
-        res.response(404).json({ error: "User not found" });
+        res
+          .response(404)
+          .json({ error: "Could Not Find This User. Please Try Again" });
         return;
       }
-      res.status(200).json({ user, message: "You have deleted a friend!" });
+      res.status(200).json({ user, message: "Successfully Deleted A Friend" });
     } catch (error) {
       res.status(500).json(error);
     }
