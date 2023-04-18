@@ -1,6 +1,6 @@
-# Tech Blog
+# Social-Network-API
 
-## Module-14 Model-View-Controller:
+## Module-18 Social Network API:
 ```md
 An API for a social network web application where users can share their thoughts, react to friends’ thoughts, and create a friend list. 
 ```
@@ -11,7 +11,7 @@ An API for a social network web application where users can share their thoughts
  * [Acceptance Criteria](#acceptance-criteria)
  * [Installation](#installation)
  * [Application Demonstration](#application-demonstration)
- * [Live Application](#Live-Application)
+ * [Video Demonstration](#video-demonstration)
 
 ## User Story
 
